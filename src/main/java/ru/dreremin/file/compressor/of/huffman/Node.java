@@ -22,6 +22,8 @@ public class Node implements Comparable<Node>{
 		this.amount = leftSon.getAmount() + rightSon.getAmount();
 		this.leftSon = leftSon;
 		this.rightSon = rightSon;
+		leftSon.setBitValue(false);
+		rightSon.setBitValue(true);
 	}
 	
 	public void setBitValue(boolean bitValue) { this.bitValue = bitValue; }
