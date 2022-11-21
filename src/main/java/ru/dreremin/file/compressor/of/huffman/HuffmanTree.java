@@ -9,12 +9,20 @@ public class HuffmanTree {
 	private Node root;
 	private int sizeTree;
 	private int leafsAmount;
+	public NodesSequence nodesSequence;
 	
 	public HuffmanTree() {
 		root = null;
 		sizeTree = 0;
 		leafsAmount = 0;
+		nodesSequence = null;
 	}
+	
+	public Node getRoot() { return root; }
+	
+	public int getSizeTree() { return sizeTree; }
+	
+	public int getLeafsAmount() { return leafsAmount; }
 	
 	public void buildTree(PriorityQueue<Node> heap) {
 		
@@ -60,6 +68,52 @@ public class HuffmanTree {
 			}
 		}
 		return map;
+	}
+	
+	public class NodesSequence {
+		
+		private short[] wordsSequence;
+		private boolean[] sequenceOfParents;
+		
+		public NodesSequence() { 
+			wordsSequence = new short[(sizeTree != 1) ? leafsAmount : 1];
+			sequenceOfParents = (sizeTree != 1) 
+					? new boolean[(sizeTree - leafsAmount) * 2] : null;
+		}
+		
+		public short[] getWordsSequence() { return wordsSequence; }
+		
+		public boolean[] getSequenceOfParents() { return sequenceOfParents; }
+	}
+	
+	public void createNodesSequence() { nodesSequence = new NodesSequence(); }
+	
+	public void deleteNodesSequence() { nodesSequence = null; }
+	
+	public void createAllSequences() {
+		
+		createNodesSequence();
+		LinkedList<Node> nodes = new LinkedList<>();
+		Node cur;
+		int lim = leafsAmount, nwCounter = 0, wCounter = 0;
+		
+		nodes.add(root);
+		while (lim > 0) {
+			
+			cur = nodes.pollLast();
+			if (cur.getKey() != null) {
+				nodesSequence.wordsSequence[wCounter++] = cur.getKey();
+				lim--;
+			} else {
+				nodesSequence.sequenceOfParents[nwCounter++] = 
+						(cur.getLeftSon().getKey() == null) ? false : true;
+				nodesSequence.sequenceOfParents[nwCounter++] = 
+						(cur.getRightSon().getKey() == null) ? false : true;
+				nodes.add(cur.getRightSon());
+				nodes.add(cur.getLeftSon());
+			}
+		}
+		
 	}
 	
 	@Override

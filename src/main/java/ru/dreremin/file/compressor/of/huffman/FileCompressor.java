@@ -15,16 +15,39 @@ public class FileCompressor {
 	private String destinationFile;
 	private HashMap<Short, String> codes;
 	
-	public FileCompressor(String sourceFile, String DestinationFile) {
+	public FileCompressor(String sourceFile, String destinationFile) 
+			throws IOException {
 		tree = new HuffmanTree();
 		this.sourceFile = sourceFile;
 		this.destinationFile = destinationFile;
+		prepareData();
+	}
+	
+	private void prepareData() throws IOException {
+		PriorityQueue<Node> heap = FrequencyCalculator
+				.getHeapOfKeysRepetitions(FrequencyCalculator
+						.countRepetitionsOfKeys(sourceFile));
+		
+		tree.buildTree(heap);
+		codes = tree.getMappingOfCodesToKeys();
 	}
 	
 	public void writeMetadataToDestinationFile() throws IOException {
 		
-		HashMap<Short, Integer> map = FrequencyCalculator
-				.countRepetitionsOfKeys(sourceFile);
+		checkOfDestinationFile();
+		try (BufferedOutputStream bos = new BufferedOutputStream(
+				new FileOutputStream(destinationFile))) {
+			
+			writeOfWordsAmount(bos);
+			tree.createAllSequences();
+			writeOfWords(bos);
+			writeAmountOfParents(bos);
+			
+		}
+	}
+	
+	private void checkOfDestinationFile() throws IOException {
+		
 		File df = new File(destinationFile);
 		
 		if (!df.isFile()) {
@@ -32,71 +55,43 @@ public class FileCompressor {
 				throw new IOException("File with this name cannot be created");
 			}
 		}
+	}
+	
+	private void writeOfWordsAmount(BufferedOutputStream bos) 
+			throws IOException {
 		
-		try (BufferedOutputStream bos = new BufferedOutputStream(
-				new FileOutputStream(destinationFile))) {
-			
-			bos.write(map.size() >>> 8);
-			bos.write(map.size());
-			for (Map.Entry<Short, Integer> entry : map.entrySet()) {
-				bos.write((int)(entry.getKey() >>> 8));
-				bos.write((int)entry.getKey());
-				int[] bytes = getBytesOfAmountOfWordRepetitions(getBytesAmount(
-						getBitsAmount(entry.getValue())), entry.getValue());
-				for (int i = 0; i < bytes.length; i++) {
-					bos.write(bytes[i]);
-				}
-			}
+		if (tree.getLeafsAmount() == 65536) { 
+			bos.write(0);
+			bos.write(0);
+			return;
+		}
+		bos.write(tree.getLeafsAmount() >>> 8);
+		bos.write(tree.getLeafsAmount());
+	}
+	
+	private void writeOfWords(BufferedOutputStream bos) throws IOException {
+		
+		short[] wordsSequence = tree.nodesSequence.getWordsSequence();
+		
+		for (int i = 0; i < wordsSequence.length; i++) {
+			bos.write(wordsSequence[i] >>> 8);
+			bos.write(wordsSequence[i]);
 		}
 	}
 	
+	private void writeAmountOfParents(BufferedOutputStream bos) 
+			throws IOException {
+		
+		int amount = tree.nodesSequence.getSequenceOfParents().length / 2;
+	
+		bos.write(amount >> 8);
+		bos.write(amount);
+	}
 	/*
-	public void prepareData() throws IOException {
-		PriorityQueue<Node> heap = FrequencyCalculator
-				.getHeapOfKeysRepetitions(FrequencyCalculator
-						.countRepetitionsOfKeys(sourceFile));
+	private void writeParents(BufferedOutputStream bos) throws IOException {
 		
-		tree.buildTree(heap);
-		codes = tree.getMappingOfCodesToKeys();
-		System.out.println(codes);
+		boolean[] sequenceOfParents = tree.nodesSequence
+				.getSequenceOfParents();
+		
 	}*/
-	
-	private int[] getBytesOfAmountOfWordRepetitions(
-			int bytesAmount, 
-			int repetitionsAmount) {
-		
-		int[] bytes = new int[bytesAmount];
-		int shiftsCounter = 0;
-		
-		bytes[0] = repetitionsAmount;
-		while (bytes[0] > 31) {
-			bytes[0] >>>= 1;
-			shiftsCounter++;
-		}
-		bytes[0] |= (bytesAmount << 5);
-		bytesAmount--; 
-		for (int i = 1; bytesAmount > 0; i++, bytesAmount--) {
-			bytes[i] = repetitionsAmount << (32 - shiftsCounter);
-			shiftsCounter -= 8;
-			bytes[i] >>>= 24;
-		}
-		return bytes;
-	}
-	
-	
-	private int getBitsAmount(int number) {
-		
-		int bitCounter = 0;
-		
-		while (number != 0) {
-			number >>>= 1;
-			bitCounter++;
-		}
-		return bitCounter;
-	}
-	
-	private int getBytesAmount(int bitsAmount) {
-		return (((bitsAmount % 8) - 5) > 0) 
-				? bitsAmount / 8 + 2 : bitsAmount / 8 + 1;
-	}
 }
