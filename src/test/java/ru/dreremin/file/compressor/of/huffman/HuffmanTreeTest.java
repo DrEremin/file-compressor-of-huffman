@@ -21,9 +21,7 @@ public class HuffmanTreeTest {
 	private PriorityQueue<Node> heap;
 	
 	@BeforeAll
-	void beforeAll() {
-		sourcePath = System.getenv().get("TEST_PATH");
-	}
+	void beforeAll() { sourcePath = System.getenv().get("SOURCE_PATH"); }
 	
 	@BeforeEach
 	void beforeEach() throws IOException {

@@ -19,7 +19,7 @@ public class FrequencyCalculatorTest {
 	
 	@BeforeAll
 	void beforeAll() {
-		sourcePath = System.getenv().get("TEST_PATH");
+		sourcePath = System.getenv().get("SOURCE_PATH");
 		control = new HashMap<>();
 		control.put((short) 18533, 1);
 		control.put((short) 27756, 1);

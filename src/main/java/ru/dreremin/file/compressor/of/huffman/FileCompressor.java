@@ -90,7 +90,8 @@ public class FileCompressor {
 	
 	private void writeParents(BufferedOutputStream bos) throws IOException {
 		
-		boolean[] sequenceOfParents = tree.nodesSequence.getSequenceOfParents();
+		boolean[] sequenceOfParents = 
+				tree.nodesSequence.getSequenceOfParents();
 		int length = (sequenceOfParents.length % 8 == 0) 
 				? (sequenceOfParents.length / 8) 
 				: (sequenceOfParents.length / 8 + 1);			
