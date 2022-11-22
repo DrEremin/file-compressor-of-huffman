@@ -42,7 +42,7 @@ public class FileCompressor {
 			tree.createAllSequences();
 			writeOfWords(bos);
 			writeAmountOfParents(bos);
-			
+			writeParents(bos);
 		}
 	}
 	
@@ -63,10 +63,10 @@ public class FileCompressor {
 		if (tree.getLeafsAmount() == 65536) { 
 			bos.write(0);
 			bos.write(0);
-			return;
+		} else {
+			bos.write(tree.getLeafsAmount() >>> 8);
+			bos.write(tree.getLeafsAmount());
 		}
-		bos.write(tree.getLeafsAmount() >>> 8);
-		bos.write(tree.getLeafsAmount());
 	}
 	
 	private void writeOfWords(BufferedOutputStream bos) throws IOException {
@@ -87,11 +87,26 @@ public class FileCompressor {
 		bos.write(amount >> 8);
 		bos.write(amount);
 	}
-	/*
+	
 	private void writeParents(BufferedOutputStream bos) throws IOException {
 		
-		boolean[] sequenceOfParents = tree.nodesSequence
-				.getSequenceOfParents();
+		boolean[] sequenceOfParents = tree.nodesSequence.getSequenceOfParents();
+		int length = (sequenceOfParents.length % 8 == 0) 
+				? (sequenceOfParents.length / 8) 
+				: (sequenceOfParents.length / 8 + 1);			
+		int[] bytesForWrite = new int[length];
+		int j = 128;
 		
-	}*/
+		for (int i = 0, k = -1; i < sequenceOfParents.length; i++) {
+			if (i % 8 == 0) { 
+				j = 128; 
+				k++;
+			}
+			if (sequenceOfParents[i]) { bytesForWrite[k] |= j; }
+			j >>>= 1;
+		}
+		for (int i = 0; i < bytesForWrite.length; i++) {
+			bos.write(bytesForWrite[i]);
+		}
+	}
 }
