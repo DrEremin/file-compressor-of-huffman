@@ -11,6 +11,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+/**
+ * The absolute paths to the files "source_file" and "destination_file" 
+ * were writ to the environment variables SOURCE_PATH and DESTINATION_PATH. 
+ * These files are in folder "src/test/resources".
+ * These environment variables must be configured for the tests to correct 
+ * work. All testing relies on the data in the file "source_file". 
+ * This file contains: 
+ * Hello World!!!!
+ */
+
 @TestInstance(Lifecycle.PER_CLASS)
 public class FrequencyCalculatorTest {
 	

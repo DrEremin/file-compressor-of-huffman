@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
 
 public class FrequencyCalculator {
 	
-	private static short getShortFromTwoBytes(int firstByte, int secondByte) {
+	public static short getShortFromTwoBytes(int firstByte, int secondByte) {
 		return (secondByte > 0) 
 				? (short) ((firstByte << 8) | secondByte) 
 						: (short) ((firstByte << 8));

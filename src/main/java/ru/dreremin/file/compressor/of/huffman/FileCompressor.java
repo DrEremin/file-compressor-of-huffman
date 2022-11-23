@@ -1,19 +1,23 @@
 package ru.dreremin.file.compressor.of.huffman;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.math.BigInteger;
 
 public class FileCompressor {
 
 	private HuffmanTree tree;
 	private String sourceFile;
 	private String destinationFile;
-	private HashMap<Short, String> codes;
+	private HashMap<Short, Integer> repetitionsMap;
+	private HashMap<Short, String> codesMap;
 	
 	public FileCompressor(String sourceFile, String destinationFile) 
 			throws IOException {
@@ -24,26 +28,37 @@ public class FileCompressor {
 	}
 	
 	private void prepareData() throws IOException {
+		
+		repetitionsMap = FrequencyCalculator
+				.countRepetitionsOfKeys(sourceFile);
 		PriorityQueue<Node> heap = FrequencyCalculator
-				.getHeapOfKeysRepetitions(FrequencyCalculator
-						.countRepetitionsOfKeys(sourceFile));
+				.getHeapOfKeysRepetitions(repetitionsMap);
 		
 		tree.buildTree(heap);
-		codes = tree.getMappingOfCodesToKeys();
+		codesMap = tree.getMappingOfCodesToKeys();
 	}
-	
-	public void writeMetadataToDestinationFile() throws IOException {
-		
-		checkOfDestinationFile();
+	/*
+	public void writeAllСompressedDataToDestinationFile() throws IOException {
 		try (BufferedOutputStream bos = new BufferedOutputStream(
 				new FileOutputStream(destinationFile))) {
-			
-			writeOfWordsAmount(bos);
-			tree.createAllSequences();
-			writeOfWords(bos);
-			writeAmountOfParents(bos);
-			writeParents(bos);
+			writeMetadataToDestinationFile(bos);
 		}
+	}*/
+	
+	public void writeMetadataToDestinationFile(BufferedOutputStream bos) 
+			throws IOException {
+		
+		checkOfDestinationFile();
+		writeAmountOfWords(bos);
+		tree.createAllSequences();
+		writeWords(bos);
+		writeAmountOfParents(bos);
+		writeParents(bos);
+		
+		BigInteger big = getAmountBitsOfData();
+		
+		writeAmountBytesOfData(bos, big);
+		writeRemainderOfBitsForReading(bos, big);
 	}
 	
 	private void checkOfDestinationFile() throws IOException {
@@ -57,7 +72,7 @@ public class FileCompressor {
 		}
 	}
 	
-	private void writeOfWordsAmount(BufferedOutputStream bos) 
+	private void writeAmountOfWords(BufferedOutputStream bos) 
 			throws IOException {
 		
 		if (tree.getLeafsAmount() == 65536) { 
@@ -69,7 +84,7 @@ public class FileCompressor {
 		}
 	}
 	
-	private void writeOfWords(BufferedOutputStream bos) throws IOException {
+	private void writeWords(BufferedOutputStream bos) throws IOException {
 		
 		short[] wordsSequence = tree.nodesSequence.getWordsSequence();
 		
@@ -110,4 +125,46 @@ public class FileCompressor {
 			bos.write(bytesForWrite[i]);
 		}
 	}
+	
+	private BigInteger getAmountBitsOfData() {
+		
+		BigInteger big = BigInteger.ZERO;
+		
+		for (Map.Entry<Short, Integer> entry : repetitionsMap.entrySet()) {
+			big = big.add(BigInteger.valueOf(
+					entry.getValue() * codesMap.get(entry.getKey()).length()));
+		}
+		return big;
+	}
+	
+	public void writeAmountBytesOfData(BufferedOutputStream bos, 
+			BigInteger big) throws IOException {
+		
+		long amount = big.divide(BigInteger.valueOf(8)).longValue();
+		
+		amount = (big.remainder(BigInteger.valueOf(8)).intValue() == 0) 
+				? amount : amount + 1;
+		for (int shift = 56; shift >= 0; shift -= 8) {
+			bos.write((int)(amount >> shift));
+		}
+	}
+	
+	private void writeRemainderOfBitsForReading(BufferedOutputStream bos, 
+			BigInteger big) throws IOException {
+		bos.write(big.remainder(BigInteger.valueOf(8)).intValue());
+	}
+	/*
+	public void writeUsefulDataToDestinationFile(BufferedOutputStream bos) 
+			throws IOException {
+		
+		String code;
+		
+		try (BufferedInputStream bis = new BufferedInputStream(
+				new FileInputStream(sourceFile))) {
+			
+			code = codesMap.get(FrequencyCalculator
+					.getShortFromTwoBytes(bis.read(), bis.read()));
+			
+		}
+	}*/
 }
