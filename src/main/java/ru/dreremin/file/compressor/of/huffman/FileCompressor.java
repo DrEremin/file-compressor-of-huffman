@@ -18,12 +18,14 @@ public class FileCompressor {
 	private String destinationFile;
 	private HashMap<Short, Integer> repetitionsMap;
 	private HashMap<Short, String> codesMap;
+	boolean isPartialByte;
 	
 	public FileCompressor(String sourceFile, String destinationFile) 
 			throws IOException {
 		tree = new HuffmanTree();
 		this.sourceFile = sourceFile;
 		this.destinationFile = destinationFile;
+		isPartialByte = false;
 		prepareData();
 	}
 	
@@ -37,13 +39,14 @@ public class FileCompressor {
 		tree.buildTree(heap);
 		codesMap = tree.getMappingOfCodesToKeys();
 	}
-	/*
+	
 	public void writeAllСompressedDataToDestinationFile() throws IOException {
 		try (BufferedOutputStream bos = new BufferedOutputStream(
 				new FileOutputStream(destinationFile))) {
 			writeMetadataToDestinationFile(bos);
+			writeUsefulDataToDestinationFile(bos);
 		}
-	}*/
+	}
 	
 	public void writeMetadataToDestinationFile(BufferedOutputStream bos) 
 			throws IOException {
@@ -58,7 +61,7 @@ public class FileCompressor {
 		BigInteger big = getAmountBitsOfData();
 		
 		writeAmountBytesOfData(bos, big);
-		writeRemainderOfBitsForReading(bos, big);
+		isPartialByte = writeRemainderOfBitsForReading(bos, big);
 	}
 	
 	private void checkOfDestinationFile() throws IOException {
@@ -149,22 +152,43 @@ public class FileCompressor {
 		}
 	}
 	
-	private void writeRemainderOfBitsForReading(BufferedOutputStream bos, 
+	private boolean writeRemainderOfBitsForReading(BufferedOutputStream bos, 
 			BigInteger big) throws IOException {
-		bos.write(big.remainder(BigInteger.valueOf(8)).intValue());
+		
+		int remainder = big.remainder(BigInteger.valueOf(8)).intValue();
+		bos.write(remainder);
+		return remainder != 0;
 	}
-	/*
+	
 	public void writeUsefulDataToDestinationFile(BufferedOutputStream bos) 
 			throws IOException {
-		
-		String code;
 		
 		try (BufferedInputStream bis = new BufferedInputStream(
 				new FileInputStream(sourceFile))) {
 			
-			code = codesMap.get(FrequencyCalculator
-					.getShortFromTwoBytes(bis.read(), bis.read()));
+			int bitIdx = 0;
+			int curByte = 0;
 			
+			while (bis.available() > 0) {
+			String	code = codesMap.get(FrequencyCalculator
+						.getShortFromTwoBytes(bis.read(), bis.read()));
+				
+				int charIdx = 0;
+				
+				while (charIdx < code.length()) {
+					if (bitIdx == 9) {
+						bos.write(curByte);
+						curByte = 0;
+						bitIdx = 0;
+					}
+					if (code.charAt(charIdx) == '1') {
+						curByte |= 128 >> bitIdx;
+					}
+					bitIdx++;
+					charIdx++;
+				}
+			}
+			if (isPartialByte) { bos.write(curByte); }
 		}
-	}*/
+	}
 }
