@@ -43,8 +43,8 @@ public class HuffmanTreeTest {
 	@Test
 	void buildTree_Success() {
 		Assertions.assertDoesNotThrow(() -> tree.buildTree(heap));
-		Assertions.assertEquals(8, tree.getLeafsAmount());
-		Assertions.assertEquals(15, tree.getSizeTree());
+		Assertions.assertEquals(9, tree.getLeafsAmount());
+		Assertions.assertEquals(17, tree.getSizeTree());
 	}
 	
 	@Test
@@ -64,36 +64,35 @@ public class HuffmanTreeTest {
 	@Test
 	void createAllSequences_Success() {
 		tree.buildTree(heap);
+		Node node = tree.getRoot();
+		short firstKey, lastKey;
 		
-		short firstKey = tree
-				.getRoot()
-				.getLeftSon()
-				.getLeftSon()
-				.getLeftSon()
-				.getKey();
-		short lastKey = tree
-				.getRoot()
-				.getRightSon()
-				.getRightSon()
-				.getRightSon()
-				.getKey();
-		
+		while (node.getLeftSon() != null) {
+			node = node.getLeftSon();
+		}
+		firstKey = node.getKey();
+		node = tree.getRoot();
+		while (node.getRightSon() != null) {
+			node = node.getRightSon();
+		}
+		lastKey = node.getKey();
 		tree.createAllSequences();
 		
-		Assertions.assertEquals(8, 
+		Assertions.assertEquals(9, 
 				tree.nodesSequence.getWordsSequence().length);
 		Assertions.assertEquals(firstKey, 
 				tree.nodesSequence.getWordsSequence()[0]);
 		Assertions.assertEquals(lastKey, 
-				tree.nodesSequence.getWordsSequence()[7]);
+				tree.nodesSequence.getWordsSequence()[8]);
 		
 		boolean[] expectedArray = {
 				false, false,
+				true, false,
 				false, false,
 				true, true,
 				true, true,
-				false, false,
-				true, true,
+				false, true,
+				false, true, 
 				true, true };
 		
 		boolean[] actualArray = tree.nodesSequence.getSequenceOfParents();

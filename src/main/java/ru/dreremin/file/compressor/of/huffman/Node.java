@@ -4,11 +4,11 @@ public class Node implements Comparable<Node>{
 
 	private boolean bitValue;
 	private Short key;
-	private int amount;
+	private long amount;
 	private Node leftSon;
 	private Node rightSon;
 	
-	public Node(Short key, int amount) {
+	public Node(Short key, long amount) {
 		bitValue = false;
 		this.key = key;
 		this.amount = amount;
@@ -32,7 +32,7 @@ public class Node implements Comparable<Node>{
 	
 	public Short getKey() { return key; }
 	
-	public int getAmount() { return amount; }
+	public long getAmount() { return amount; }
 	
 	public Node getLeftSon() { return leftSon; }
 	
@@ -41,7 +41,7 @@ public class Node implements Comparable<Node>{
 	@Override
 	public int compareTo(Node other) {
 		
-		int difference = this.amount - other.getAmount();
+		int difference = (int)(this.amount - other.getAmount());
 		
 		if (difference != 0) { 
 			return difference; 

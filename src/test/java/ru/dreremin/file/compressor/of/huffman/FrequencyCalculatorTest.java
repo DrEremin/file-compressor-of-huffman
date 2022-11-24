@@ -25,31 +25,31 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 public class FrequencyCalculatorTest {
 	
 	private String sourcePath;
-	private HashMap<Short, Integer> control;
+	private HashMap<Short, Long> control;
 	
 	@BeforeAll
 	void beforeAll() {
 		sourcePath = System.getenv().get("SOURCE_PATH");
 		control = new HashMap<>();
-		control.put((short) 18533, 1);
-		control.put((short) 27756, 1);
-		control.put((short) 28448, 1);
-		control.put((short) 22383, 1);
-		control.put((short) 29292, 1);
-		control.put((short) 25633, 1);
-		control.put((short) 8481, 1);
-		control.put((short) 8448, 1);
-		
+		control.put((short) 72, 1L);
+		control.put((short) 101, 1L);
+		control.put((short) 108, 3L);
+		control.put((short) 111, 2L);
+		control.put((short) 32, 1L);
+		control.put((short) 87, 1L);
+		control.put((short) 114, 1L);
+		control.put((short) 100, 1L);
+		control.put((short) 33, 4L);
 	}
 
 	@Test
 	void countRepetitionsOfKeys_Success() throws IOException {
 		
-		HashMap<Short, Integer> map = 
+		HashMap<Short, Long> map = 
 				FrequencyCalculator.countRepetitionsOfKeys(sourcePath);
 		
 		Assertions.assertEquals(control.size(), map.size());
-		for (Map.Entry<Short, Integer> entry : control.entrySet()) {
+		for (Map.Entry<Short, Long> entry : control.entrySet()) {
 			Assertions.assertEquals(entry.getValue(), map.get(entry.getKey()));
 		}
 	}
@@ -57,7 +57,7 @@ public class FrequencyCalculatorTest {
 	@Test
 	void getHeapOfKeysRepetitions_Success() {
 		
-		short[] values = { 8448, 8481, 18533 };
+		short[] values = { 32, 72, 87, 100, 101, 114, 111, 108, 33 };
 		PriorityQueue<Node> heap = 
 				FrequencyCalculator.getHeapOfKeysRepetitions(control);
 		

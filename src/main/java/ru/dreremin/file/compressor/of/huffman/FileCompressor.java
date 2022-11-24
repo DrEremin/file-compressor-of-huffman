@@ -16,7 +16,7 @@ public class FileCompressor {
 	private HuffmanTree tree;
 	private String sourceFile;
 	private String destinationFile;
-	private HashMap<Short, Integer> repetitionsMap;
+	private HashMap<Short, Long> repetitionsMap;
 	private HashMap<Short, String> codesMap;
 	boolean isPartialByte;
 	
@@ -77,14 +77,8 @@ public class FileCompressor {
 	
 	private void writeAmountOfWords(BufferedOutputStream bos) 
 			throws IOException {
-		
-		if (tree.getLeafsAmount() == 65536) { 
-			bos.write(0);
-			bos.write(0);
-		} else {
-			bos.write(tree.getLeafsAmount() >>> 8);
-			bos.write(tree.getLeafsAmount());
-		}
+		bos.write(tree.getLeafsAmount() >>> 8);
+		bos.write(tree.getLeafsAmount());
 	}
 	
 	private void writeWords(BufferedOutputStream bos) throws IOException {
@@ -92,7 +86,6 @@ public class FileCompressor {
 		short[] wordsSequence = tree.nodesSequence.getWordsSequence();
 		
 		for (int i = 0; i < wordsSequence.length; i++) {
-			bos.write(wordsSequence[i] >>> 8);
 			bos.write(wordsSequence[i]);
 		}
 	}
@@ -133,7 +126,7 @@ public class FileCompressor {
 		
 		BigInteger big = BigInteger.ZERO;
 		
-		for (Map.Entry<Short, Integer> entry : repetitionsMap.entrySet()) {
+		for (Map.Entry<Short, Long> entry : repetitionsMap.entrySet()) {
 			big = big.add(BigInteger.valueOf(
 					entry.getValue() * codesMap.get(entry.getKey()).length()));
 		}
@@ -170,8 +163,7 @@ public class FileCompressor {
 			int curByte = 0;
 			
 			while (bis.available() > 0) {
-			String	code = codesMap.get(FrequencyCalculator
-						.getShortFromTwoBytes(bis.read(), bis.read()));
+				String	code = codesMap.get((short)bis.read());
 				
 				int charIdx = 0;
 				

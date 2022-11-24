@@ -10,24 +10,19 @@ import java.util.PriorityQueue;
 
 public class FrequencyCalculator {
 	
-	public static short getShortFromTwoBytes(int firstByte, int secondByte) {
-		return (secondByte > 0) 
-				? (short) ((firstByte << 8) | secondByte) 
-						: (short) ((firstByte << 8));
-	}
-	
-	public static HashMap<Short, Integer> countRepetitionsOfKeys(
+	public static HashMap<Short, Long> countRepetitionsOfKeys(
 			String fileSource) throws IOException{
 		
-		HashMap<Short, Integer> result = new HashMap<>();	
+		HashMap<Short, Long> result = new HashMap<>();	
 		
-		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(fileSource))) {
+		try (BufferedInputStream bis = new BufferedInputStream(
+				new FileInputStream(fileSource))) {
 			
 			short key;
 			
 			while (bis.available() > 0) {
-				key = getShortFromTwoBytes(bis.read(), bis.read());
-				Integer newValue = (result.containsKey(key)) 
+				key = (short)bis.read();
+				long newValue = (result.containsKey(key)) 
 						? result.get(key).intValue() + 1 : 1;
 				result.put(key, newValue);
 			}
@@ -36,11 +31,11 @@ public class FrequencyCalculator {
 	}
 	
 	public static PriorityQueue<Node> getHeapOfKeysRepetitions(
-			HashMap<Short, Integer> map) {
+			HashMap<Short, Long> map) {
 		
 		PriorityQueue<Node> heap = new PriorityQueue<>();
 		
-		for (Map.Entry<Short, Integer> entry : map.entrySet()) {
+		for (Map.Entry<Short, Long> entry : map.entrySet()) {
 			heap.add(new Node(entry.getKey(), entry.getValue()));
 		}
 		return heap;

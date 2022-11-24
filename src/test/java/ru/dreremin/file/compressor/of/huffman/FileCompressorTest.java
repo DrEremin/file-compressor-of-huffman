@@ -45,15 +45,15 @@ public class FileCompressorTest {
 	@Test
 	void wordsWereWrittenSuccessfully() throws IOException {
 		
-		HashMap<Short, Integer> map = 
+		HashMap<Short, Long> map = 
 				FrequencyCalculator.countRepetitionsOfKeys(sourcePath);
 		try (BufferedInputStream bis = new BufferedInputStream(
 				new FileInputStream(destinationPath))) {
 			int temp = (bis.read() << 8) | bis.read();
-			Assertions.assertTrue(temp == 8);
+			Assertions.assertTrue(temp == 9);
 			for (int i = 0; i < temp; i++) {
 				Assertions.assertTrue(map.containsKey(
-						(short)((bis.read() << 8) | bis.read())));
+						(short)bis.read()));
 			}
 			Assertions.assertEquals(temp, map.values().size());
 		}
@@ -64,10 +64,10 @@ public class FileCompressorTest {
 		
 		try (BufferedInputStream bis = new BufferedInputStream(
 				new FileInputStream(destinationPath))) {
-			bis.skip(18);
-			Assertions.assertTrue(((bis.read() << 8) | bis.read()) == 7);
-			Assertions.assertTrue(bis.read() == 15);
-			Assertions.assertTrue(bis.read() == 60);
+			bis.skip(11);
+			Assertions.assertTrue(((bis.read() << 8) | bis.read()) == 8);
+			Assertions.assertTrue(bis.read() == 35);
+			Assertions.assertTrue(bis.read() == 215);
 		}
 	}
 	
@@ -76,13 +76,13 @@ public class FileCompressorTest {
 			throws IOException {
 		try (BufferedInputStream bis = new BufferedInputStream(
 				new FileInputStream(destinationPath))) {
-			bis.skip(22);
+			bis.skip(15);
 			
 			for (int i = 0; i < 7; i++) {
 				Assertions.assertTrue(bis.read() == 0);
 			}
-			Assertions.assertTrue(bis.read() == 3);
-			Assertions.assertTrue(bis.read() == 0);
+			Assertions.assertTrue(bis.read() == 6);
+			Assertions.assertTrue(bis.read() == 4);
 		}
 	}
 	
