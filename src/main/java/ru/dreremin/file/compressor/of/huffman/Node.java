@@ -8,6 +8,14 @@ public class Node implements Comparable<Node>{
 	private Node leftSon;
 	private Node rightSon;
 	
+	public Node() {
+		boolean bitValue = false;
+		Short key = null;
+		long amount = 1L;
+		Node leftSon = null;
+		Node rightSon = null;
+	}
+	
 	public Node(Short key, long amount) {
 		bitValue = false;
 		this.key = key;
@@ -27,6 +35,10 @@ public class Node implements Comparable<Node>{
 	}
 	
 	public void setBitValue(boolean bitValue) { this.bitValue = bitValue; }
+	
+	public void setLeftSon(Node leftSon) { this.leftSon = leftSon; }
+	
+	public void setRightSon(Node rightSon) { this.rightSon = rightSon; }
 	
 	public boolean getBitValue() { return bitValue; }
 	
