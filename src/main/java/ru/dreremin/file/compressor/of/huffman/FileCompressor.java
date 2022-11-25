@@ -55,12 +55,10 @@ public class FileCompressor {
 		writeAmountOfWords(bos);
 		tree.createAllSequences();
 		writeWords(bos);
-		writeAmountOfParents(bos);
 		writeParents(bos);
 		
 		BigInteger big = getAmountBitsOfData();
 		
-		writeAmountBytesOfData(bos, big);
 		isPartialByte = writeRemainderOfBitsForReading(bos, big);
 	}
 	
@@ -88,15 +86,6 @@ public class FileCompressor {
 		for (int i = 0; i < wordsSequence.length; i++) {
 			bos.write(wordsSequence[i]);
 		}
-	}
-	
-	private void writeAmountOfParents(BufferedOutputStream bos) 
-			throws IOException {
-		
-		int amount = tree.nodesSequence.getSequenceOfParents().length / 2;
-	
-		bos.write(amount >> 8);
-		bos.write(amount);
 	}
 	
 	private void writeParents(BufferedOutputStream bos) throws IOException {
@@ -131,18 +120,6 @@ public class FileCompressor {
 					entry.getValue() * codesMap.get(entry.getKey()).length()));
 		}
 		return big;
-	}
-	
-	public void writeAmountBytesOfData(BufferedOutputStream bos, 
-			BigInteger big) throws IOException {
-		
-		long amount = big.divide(BigInteger.valueOf(8)).longValue();
-		
-		amount = (big.remainder(BigInteger.valueOf(8)).intValue() == 0) 
-				? amount : amount + 1;
-		for (int shift = 56; shift >= 0; shift -= 8) {
-			bos.write((int)(amount >> shift));
-		}
 	}
 	
 	private boolean writeRemainderOfBitsForReading(BufferedOutputStream bos, 

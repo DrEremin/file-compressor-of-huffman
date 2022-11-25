@@ -83,7 +83,7 @@ public class HuffmanTreeTest {
 		Assertions.assertEquals(firstKey, 
 				tree.nodesSequence.getWordsSequence()[0]);
 		Assertions.assertEquals(lastKey, 
-				tree.nodesSequence.getWordsSequence()[8]);
+				tree.nodesSequence.getWordsSequence()[5]);
 		
 		boolean[] expectedArray = {
 				false, false,

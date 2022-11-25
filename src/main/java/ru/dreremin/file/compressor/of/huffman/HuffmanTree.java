@@ -41,39 +41,35 @@ public class HuffmanTree {
 		sizeTree++;
 	}
 	
-	public void buildTree(int [] words, int[] parentsBytes) {
+	public void buildTree(short[] words, int[] parentsBytes) {
 		
 		root = new Node();
-		sizeTree++;
+		leafsAmount = words.length;
+		sizeTree = 2 * leafsAmount - 1;
 		
 		Node cur = root;
-		LinkedList<Node> list = new LinkedList<>();
-		
+		LinkedList<Node> unvisitedNodes = new LinkedList<>();
 		for (int i = 0, k = 0; k <= words.length - 1; i++) {
 			for (int j = 6, val; j >= 0; j -= 2) {
 				val = (parentsBytes[i] >>> j) & 3;
-				sizeTree += 2;
 				if (val == 0) {
 					cur.setLeftSon(new Node());
 					cur.setRightSon(new Node());
-					list.add(cur.getRightSon());
+					unvisitedNodes.addLast(cur.getRightSon());
 					cur = cur.getLeftSon();
 				} else if (val == 2) {
-					cur.setLeftSon(new Node((short)words[k++], 1L));
+					cur.setLeftSon(new Node(words[k++], 0L));
 					cur.setRightSon(new Node());
 					cur = cur.getRightSon();
-					leafsAmount++;
 				} else if (val == 1) {
 					cur.setLeftSon(new Node());
-					cur.setRightSon(new Node((short)words[k++], 1L));
+					cur.setRightSon(new Node(words[k++], 0L));
 					cur = cur.getLeftSon();
-					leafsAmount++;
 				} else {
-					cur.setLeftSon(new Node((short)words[k++], 1L));
-					cur.setRightSon(new Node((short)words[k++], 1L));
-					leafsAmount += 2;
+					cur.setLeftSon(new Node(words[k++], 0L));
+					cur.setRightSon(new Node(words[k++], 0L));
 					if (k > words.length - 1) { break; }
-					cur = list.getLast();
+					cur = unvisitedNodes.pollLast();
 				}
 			}
 		}
@@ -131,29 +127,51 @@ public class HuffmanTree {
 	public void createAllSequences() {
 		
 		createNodesSequence();
-		LinkedList<Node> nodes = new LinkedList<>();
-		Node cur;
+		
+		LinkedList<Node> unvisitedNodes = new LinkedList<>();
+		Node cur = root;
 		int lim = leafsAmount, nwCounter = 0, wCounter = 0;
 		
-		nodes.add(root);
-		while (lim > 0) {
-			
-			cur = nodes.pollLast();
-			if (cur.getKey() != null) {
-				nodesSequence.wordsSequence[wCounter++] = cur.getKey();
-				lim--;
-			} else {
-				nodesSequence.sequenceOfParents[nwCounter++] = 
-						(cur.getLeftSon().getKey() == null) ? false : true;
-				nodesSequence.sequenceOfParents[nwCounter++] = 
-						(cur.getRightSon().getKey() == null) ? false : true;
-				nodes.add(cur.getRightSon());
-				nodes.add(cur.getLeftSon());
+		if (leafsAmount == 1) {
+			nodesSequence.wordsSequence[wCounter++] = cur.getKey();
+		} else {
+			while (lim > 0) {
+					
+				if (cur.getLeftSon().getKey() == null 
+						&& cur.getRightSon().getKey() == null) {
+					nodesSequence.sequenceOfParents[nwCounter++] = false;
+					nodesSequence.sequenceOfParents[nwCounter++] = false;
+					unvisitedNodes.addLast(cur.getRightSon());
+					cur = cur.getLeftSon();
+				} else if (cur.getLeftSon().getKey() == null 
+						&& cur.getRightSon().getKey() != null) {
+					nodesSequence.sequenceOfParents[nwCounter++] = false;
+					nodesSequence.sequenceOfParents[nwCounter++] = true;
+					nodesSequence.wordsSequence[wCounter++] = 
+							cur.getRightSon().getKey();
+					lim--;
+					cur = cur.getLeftSon();
+				} else if (cur.getLeftSon().getKey() != null 
+						&& cur.getRightSon().getKey() == null) {
+					nodesSequence.sequenceOfParents[nwCounter++] = true;
+					nodesSequence.sequenceOfParents[nwCounter++] = false;
+					nodesSequence.wordsSequence[wCounter++] = 
+							cur.getLeftSon().getKey();
+					lim--;
+					cur = cur.getRightSon();
+				} else {
+					nodesSequence.sequenceOfParents[nwCounter++] = true;
+					nodesSequence.sequenceOfParents[nwCounter++] = true;
+					nodesSequence.wordsSequence[wCounter++] = 
+							cur.getLeftSon().getKey();
+					nodesSequence.wordsSequence[wCounter++] = 
+							cur.getRightSon().getKey();
+					lim -= 2;
+					cur = unvisitedNodes.pollLast();
+				}
 			}
 		}
-		
 	}
-	
 	
 	@Override
 	public String toString() {
