@@ -114,27 +114,25 @@ public class FileDecompressor {
 			tree.resetCurrentNode();
 			while (bis.available() > 1) {
 				curByte = bis.read();
-				if (curByte < 0) {
-					throw new EOFException(
-							"Byte with code of Huffman was not read"); 
-				}
-				for (int shift = 7; shift >= 0; shift--) {
-					if (tree.moveCurrentNode(((curByte >> shift) & 1) == 1)) {
-						bos.write(tree.getByte());
-						tree.resetCurrentNode();
-					}
-				}
+				decodingByteAndWrite(curByte, 0, bos);
 			}
 			curByte = bis.read();
-			if (curByte < 0) {
-				throw new EOFException(
-						"Byte with code of Huffman was not read"); 
-			}
-			for (int shift = 7; shift >= remainder; shift--) {
-				if (tree.moveCurrentNode(((curByte >> shift) & 1) == 1)) {
-					bos.write(tree.getByte());
-					tree.resetCurrentNode();
-				}
+			decodingByteAndWrite(curByte, remainder, bos);
+		}
+	}
+	
+	private void decodingByteAndWrite(
+			int curByte, 
+			int minIdx, 
+			BufferedOutputStream bos) throws IOException {
+		if (curByte < 0) {
+			throw new EOFException(
+					"Byte with code of Huffman was not read"); 
+		}
+		for (int shift = 7; shift >= minIdx; shift--) {
+			if (tree.moveCurrentNode(((curByte >> shift) & 1) == 1)) {
+				bos.write(tree.getByte());
+				tree.resetCurrentNode();
 			}
 		}
 	}
