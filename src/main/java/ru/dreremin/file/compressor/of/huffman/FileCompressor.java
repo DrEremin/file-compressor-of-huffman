@@ -145,13 +145,13 @@ public class FileCompressor {
 				int charIdx = 0;
 				
 				while (charIdx < code.length()) {
-					if (bitIdx == 9) {
+					if (bitIdx == 8) {
 						bos.write(curByte);
 						curByte = 0;
 						bitIdx = 0;
 					}
 					if (code.charAt(charIdx) == '1') {
-						curByte |= 128 >> bitIdx;
+						curByte |= (128 >> bitIdx);
 					}
 					bitIdx++;
 					charIdx++;

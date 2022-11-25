@@ -7,6 +7,7 @@ import java.util.PriorityQueue;
 public class HuffmanTree {
 	
 	private Node root;
+	private Node currentNode;
 	private int sizeTree;
 	private int leafsAmount;
 	public NodesSequence nodesSequence;
@@ -53,21 +54,21 @@ public class HuffmanTree {
 			for (int j = 6, val; j >= 0; j -= 2) {
 				val = (parentsBytes[i] >>> j) & 3;
 				if (val == 0) {
-					cur.setLeftSon(new Node());
-					cur.setRightSon(new Node());
+					cur.setLeftSon(new Node(false));
+					cur.setRightSon(new Node(true));
 					unvisitedNodes.addLast(cur.getRightSon());
 					cur = cur.getLeftSon();
 				} else if (val == 2) {
-					cur.setLeftSon(new Node(words[k++], 0L));
-					cur.setRightSon(new Node());
+					cur.setLeftSon(new Node(words[k++], 0L, false));
+					cur.setRightSon(new Node(true));
 					cur = cur.getRightSon();
 				} else if (val == 1) {
-					cur.setLeftSon(new Node());
-					cur.setRightSon(new Node(words[k++], 0L));
+					cur.setLeftSon(new Node(false));
+					cur.setRightSon(new Node(words[k++], 0L, true));
 					cur = cur.getLeftSon();
 				} else {
-					cur.setLeftSon(new Node(words[k++], 0L));
-					cur.setRightSon(new Node(words[k++], 0L));
+					cur.setLeftSon(new Node(words[k++], 0L, false));
+					cur.setRightSon(new Node(words[k++], 0L, true));
 					if (k > words.length - 1) { break; }
 					cur = unvisitedNodes.pollLast();
 				}
@@ -171,6 +172,16 @@ public class HuffmanTree {
 				}
 			}
 		}
+	}
+	
+	public void resetCurrentNode() { currentNode = root; }
+	
+	public int getByte() { return currentNode.getKey(); }
+	
+	public boolean moveCurrentNode(boolean side) {
+		currentNode = (side) 
+				? currentNode.getRightSon() : currentNode.getLeftSon();
+		return currentNode.getKey() != null;
 	}
 	
 	@Override

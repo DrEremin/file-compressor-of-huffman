@@ -1,25 +1,24 @@
 package ru.dreremin.file.compressor.of.huffman;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class FileDecompressor {
 	
 	public HuffmanTree tree;
 	private String compressedFile;
 	private String recoveredFile;
-	private HashMap<Short, String> codesMap;
 	
 	public FileDecompressor(String compressedFile, String recoveredFile) 
 			throws IOException {
 		tree = new HuffmanTree();
 		this.compressedFile = compressedFile;
 		this.recoveredFile = recoveredFile;
-		this.codesMap = new HashMap<>();
 	}
 	
 	public void recoverFile() throws IOException {
@@ -34,6 +33,8 @@ public class FileDecompressor {
 			int[] parentsBytes = readParentsBytes(bis, amountOfWords);
 			
 			tree.buildTree(words, parentsBytes);
+			decodingAndWriteUsefulData(bis, 
+					readRemainderOfBitsForReading(bis));
 		}
 	}
 	
@@ -90,4 +91,51 @@ public class FileDecompressor {
 		return parentsBytes;
 	}
 	
+	private int readRemainderOfBitsForReading(BufferedInputStream bis) 
+			throws IOException {
+		
+		int remainder = bis.read();
+		if (remainder < 0) {
+			throw new EOFException(
+					"Remainder of bits for reading was not read"); 
+		}
+		return remainder;
+	}
+	
+	private void decodingAndWriteUsefulData(BufferedInputStream bis, 
+			int remainder)  throws IOException {
+		
+		try (BufferedOutputStream bos = new BufferedOutputStream(
+				new FileOutputStream(recoveredFile))) {
+			
+			int curByte;
+			
+			remainder = (remainder != 0) ? 8 - remainder : 8;
+			tree.resetCurrentNode();
+			while (bis.available() > 1) {
+				curByte = bis.read();
+				if (curByte < 0) {
+					throw new EOFException(
+							"Byte with code of Huffman was not read"); 
+				}
+				for (int shift = 7; shift >= 0; shift--) {
+					if (tree.moveCurrentNode(((curByte >> shift) & 1) == 1)) {
+						bos.write(tree.getByte());
+						tree.resetCurrentNode();
+					}
+				}
+			}
+			curByte = bis.read();
+			if (curByte < 0) {
+				throw new EOFException(
+						"Byte with code of Huffman was not read"); 
+			}
+			for (int shift = 7; shift >= remainder; shift--) {
+				if (tree.moveCurrentNode(((curByte >> shift) & 1) == 1)) {
+					bos.write(tree.getByte());
+					tree.resetCurrentNode();
+				}
+			}
+		}
+	}
 }

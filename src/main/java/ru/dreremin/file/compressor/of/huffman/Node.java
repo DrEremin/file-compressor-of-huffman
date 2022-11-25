@@ -9,11 +9,19 @@ public class Node implements Comparable<Node>{
 	private Node rightSon;
 	
 	public Node() {
-		boolean bitValue = false;
-		Short key = null;
-		long amount = 1L;
-		Node leftSon = null;
-		Node rightSon = null;
+		bitValue = false;
+		key = null;
+		amount = 1L;
+		leftSon = null;
+		rightSon = null;
+	}
+	
+	public Node(boolean bitValue) {
+		this.bitValue = bitValue;
+		key = null;
+		amount = 1L;
+		leftSon = null;
+		rightSon = null;
 	}
 	
 	public Node(Short key, long amount) {
@@ -22,6 +30,14 @@ public class Node implements Comparable<Node>{
 		this.amount = amount;
 		this.leftSon = null;
 		this.rightSon = null;
+	}
+	
+	public Node(Short key, long amount, boolean bitValue) {
+		this.bitValue = bitValue;
+		this.key = key;
+		this.amount = amount;
+		leftSon = null;
+		rightSon = null;
 	}
 	
 	public Node(Node leftSon, Node rightSon) {
