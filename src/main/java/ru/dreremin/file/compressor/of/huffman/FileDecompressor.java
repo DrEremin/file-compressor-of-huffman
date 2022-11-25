@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class FileDecompressor {
 	
-	public HuffmanTree tree;
+	private HuffmanTree tree;
 	private String compressedFile;
 	private String recoveredFile;
 	

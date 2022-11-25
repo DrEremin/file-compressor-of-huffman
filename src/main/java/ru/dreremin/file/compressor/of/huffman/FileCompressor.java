@@ -13,7 +13,7 @@ import java.math.BigInteger;
 
 public class FileCompressor {
 
-	public HuffmanTree tree;
+	private HuffmanTree tree;
 	private String sourceFile;
 	private String destinationFile;
 	private HashMap<Short, Long> repetitionsMap;
